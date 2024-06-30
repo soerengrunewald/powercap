@@ -1,0 +1,3 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+option('systemdsystemunitdir', type: 'string', value: '',
+       description: 'Directory for systemd service files')

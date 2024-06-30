@@ -1,0 +1,10 @@
+[Unit]
+Description=Change Power-Limit on AMDGPU's
+
+[Service]
+Restart=no
+EnvironmentFile=-/etc/sysconfig/powercap
+ExecStart=@bindir@/powercap $POWERCAP_ARGS
+
+[Install]
+WantedBy=multi-user.target
