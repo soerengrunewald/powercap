@@ -27,58 +27,16 @@
 #include <string_view>
 #include <vector>
 
+#include <cxxopts.hpp>
+
 namespace fs = std::filesystem;
 
 namespace {
-
-	template<typename T>
-	T clamp(T value, T lower, T upper) {
-		if (value < lower)
-			return lower;
-		if (value > upper)
-			return upper;
-		return value;
-	}
-
-	constexpr char lowercase_ascii(char c) noexcept {
-		if (c >= 'A' && c <= 'Z')
-			c = static_cast<char>(c + ('a' - 'A'));
-		return c;
-	}
-
-	inline std::string lowercase_ascii(std::string const& s) {
-		std::string r{};
-		r.reserve(s.size());
-		for (char c : s)
-			r.push_back(lowercase_ascii(c));
-		return r;
-	}
-
-	/** Remove leading (white-)spaces */
-	inline std::string& trim_left(std::string& s, std::string_view const& d = " ") {
-		return s.erase(0, s.find_first_not_of(d));
-	}
-	/** Remove tailing (white-)spaces */
-	inline std::string& trim_right(std::string& s, std::string_view const& d = " ") {
-		return s.erase(s.find_last_not_of(d) + 1);
-	}
-	/** Remove leading and tailing (white-)spaces */
-	inline std::string& trim(std::string& s, std::string_view const& d = " ") {
-		return trim_left(trim_right(s, d), d);
-	}
-	inline std::string trim(std::string const& s, std::string_view const& d = " ") {
-		auto str = s;
-		return trim_left(trim_right(str, d), d);
-	}
 
 	constexpr inline bool starts_with(std::string_view str, std::string_view prefix) {
 		auto const hsl = str.length();
 		auto const hl = prefix.length();
 		return hsl >= hl and std::string_view{ str.data(), hl }.compare(prefix) == 0;
-	}
-
-	std::vector<std::string_view> const c_args_to_cpp(int argc, char* argv[]) {
-		return { argv, argv + argc };
 	}
 
 	std::optional<std::string> read_string_from(std::string const& p) {
@@ -146,15 +104,6 @@ namespace {
 		SetToMax,
 	};
 
-	// Primitve commandline parsing
-	inline Action to_action(std::string_view s) {
-		if (s == "--min")
-			return Action::SetToMin;
-		if (s == "--max")
-			return Action::SetToMax;
-		return Action::RestoreDefault;
-	}
-
 	inline std::string_view to_string(Action a) {
 		switch (a) {
 		case Action::SetToMin: return "minimal";
@@ -167,13 +116,30 @@ namespace {
 
 int main(int argc, char* argv[])
 {
+	cxxopts::Options options("powercap", "Set power-limits on AMD GPUs");
+	options.add_options()
+		("v,verbose", "Enable extra messages", cxxopts::value<bool>()->default_value("false"))
+		("min", "Set power limits to minimum (default)")
+		("max", "Set power limits to maximum")
+		("default", "Restore driver default value")
+		("h,help", "Print usage")
+		;
+
+	auto result = options.parse(argc, argv);
+	if (result.count("help")) {
+		std::cout << options.help() << std::endl;
+		return 0;
+	}
+
 	Action what_to_do = Action::SetToMin;
+	if (result.count("max"))
+		what_to_do = Action::SetToMax;
+	if (result.count("default"))
+		what_to_do = Action::RestoreDefault;
 
-	auto const args = c_args_to_cpp(argc, argv);
-	if (args.size() == 2)
-		what_to_do = to_action(args[1]);
-
-	std::cout << "Setting power-target to " << to_string(what_to_do) << "...\n";
+	auto const verbose = result["verbose"].as<bool>();
+	if (verbose)
+		std::cout << "Setting power-target to " << to_string(what_to_do) << "...\n";
 
 	auto const card = find_card_base_path();
 	if (card.empty()) {

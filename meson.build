@@ -9,6 +9,16 @@ project('powercap', 'cpp',
    meson_version : '>=1.0'
 )
 
+deps = [
+    dependency('cxxopts'),
+  ]
+
+src = files([
+    'main.cc'
+  ])
+
 subdir('data')
 
-executable(meson.project_name(), 'main.cc', install : true)
+executable(meson.project_name(), src,
+  dependencies : deps,
+  install : true)

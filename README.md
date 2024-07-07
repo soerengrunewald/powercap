@@ -27,6 +27,6 @@ If a `systemdsystemunitdir` is provided a systemd service file is generated.
 One can pass arguments to the service via `/etc/sysconfig/powercap` file.
 
 By default the program will set the lowerst power-target. But one can change
-this by supplying `--min`, `--max` or `--def` as argument by declaring the
-variable `POWERCAP_ARGS` in `/etc/sysconfig/powercap`.
+this by supplying `--min`, `--max` or `--default` as argument by declaring
+the variable `POWERCAP_ARGS` in `/etc/sysconfig/powercap`.
 
