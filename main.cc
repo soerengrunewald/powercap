@@ -39,7 +39,7 @@ namespace {
 		return hsl >= hl and std::string_view{ str.data(), hl }.compare(prefix) == 0;
 	}
 
-	std::optional<std::string> read_string_from(std::string const& p) {
+	std::optional<std::string> read_string_from(fs::path const& p) {
 		std::ifstream f(p);
 		if (not f.is_open())
 			return {};
@@ -48,7 +48,7 @@ namespace {
 		return s;
 	}
 
-	std::optional<std::uint64_t> read_dec_uint64_value_from(std::string const& p) {
+	std::optional<std::uint64_t> read_dec_uint64_value_from(fs::path const& p) {
 		auto v = read_string_from(p);
 		if (v.has_value()) try {
 			return std::stoul(v.value());
@@ -58,7 +58,7 @@ namespace {
 		return {};
 	}
 
-	inline int write_dec_uint64_value_to(std::string const& p, std::uint64_t v) {
+	inline int write_dec_uint64_value_to(fs::path const& p, std::uint64_t v) {
 		std::ofstream f{p};
 		if (not f.is_open())
 			return -EPERM;
@@ -67,7 +67,7 @@ namespace {
 		return 0;
 	}
 
-	inline int write_dec_uint64_value_to(std::string const& p, std::optional<std::uint64_t> const& v) {
+	inline int write_dec_uint64_value_to(fs::path const& p, std::optional<std::uint64_t> const& v) {
 		if (not v.has_value())
 			return -ENODATA;
 		return write_dec_uint64_value_to(p, v.value());
@@ -88,8 +88,8 @@ namespace {
 	}
 
 	// Try to figure the hwmon entry
-	std::string find_hwmon_base_path(std::string const& p) {
-		fs::path const base_path{ p + "/device/hwmon" };
+	std::string find_hwmon_base_path(fs::path const& p) {
+		fs::path const base_path{ p / "device/hwmon" };
 		for (auto const& dir_entry : fs::directory_iterator{ base_path }) {
 			if (not dir_entry.is_directory())
 				continue;
