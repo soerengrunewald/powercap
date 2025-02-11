@@ -5,15 +5,18 @@ nothing more nothing less.
 
 ## Why
 
-One could do the same thing by autostarting [corectrl](https://gitlab.com/corectrl/corectrl.git),
-but this usually includes changing the GPU and Memory frequencies.
+One could probably achieve the same thing by simply autostarting
+[corectrl](https://gitlab.com/corectrl/corectrl.git) or
+[LACT](https://github.com/ilya-zlobintsev/LACT). But this usually
+includes changing the GPU and Memory frequencies.
 
-And this is something not what I want, my intent is to same power
+And this is something not what I want, my intent is to safe power
 during gameplay. The easiest way to do this, is to limit the power-budget
 and let the GPU handle the rest.
 
-One could achive the same thing using a couple lines of shell script.
-But this would not no be as fun as coding a bit, also I like binaries.
+One could achieve the same thing, by using a couple lines of shell
+script or python if you will. But this would not no be as fun as
+coding a bit, also I like actual binaries ;)
 
 ## Dependencies
 
