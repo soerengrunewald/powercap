@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-    auto const hwmon = find_hwmon_base_path(card);
+	auto const hwmon = find_hwmon_base_path(card);
 	if (hwmon.empty()) {
 		std::cerr << "Unable to find hwmon entries for " << card << "\n";
 		return 1;
