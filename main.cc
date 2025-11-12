@@ -37,6 +37,9 @@ namespace {
 		auto const hl = prefix.length();
 		return hsl >= hl and std::string_view{ str.data(), hl }.compare(prefix) == 0;
 	}
+	constexpr inline bool contains(std::string_view haystack, std::string_view needle) {
+		return haystack.find(needle) != std::string_view::npos;
+	}
 
 	std::optional<std::string> read_string_from(fs::path const& p) {
 		std::ifstream f(p);
@@ -79,7 +82,8 @@ namespace {
 			if (not dir_entry.is_directory())
 				continue;
 			auto const p = dir_entry.path();
-			if (not starts_with(p.filename().string(), "card"))
+			auto const f = p.filename().string();
+			if (not starts_with(f, "card") or contains(f, "-"))
 				continue;
 			return p.string();
 		}
@@ -89,6 +93,8 @@ namespace {
 	// Try to figure the hwmon entry
 	std::string find_hwmon_base_path(fs::path const& p) {
 		fs::path const base_path{ p / "device/hwmon" };
+		if (not fs::exists(base_path))
+			return "";
 		for (auto const& dir_entry : fs::directory_iterator{ base_path }) {
 			if (not dir_entry.is_directory())
 				continue;
