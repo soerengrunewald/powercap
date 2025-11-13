@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
 	auto pwrtarget = read_dec_uint64_value_from(hwmon + std::string{ pwr_source[what_to_do] });
 	auto err = write_dec_uint64_value_to(hwmon + "/power1_cap", pwrtarget);
 	if (err < 0)
-		std::cerr << "Could not write " << std::strerror(-err) << std::endl;
+		std::cerr << "Could not write: " << std::strerror(-err) << std::endl;
 
 	return 0;
 }
