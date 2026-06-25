@@ -170,6 +170,7 @@ int main(int argc, char* argv[])
 	auto err = write_dec_uint64_value_to(hwmon / "/power1_cap", pwrtarget);
 	if (err.value() != 0)
 		std::cerr << "Could not write: " << err.message() << std::endl;
-
+	else if (verbose)
+		std::cout << "Done writing " << pwrtarget.value_or(0u) << " to " << hwmon << "\n";
 	return 0;
 }
