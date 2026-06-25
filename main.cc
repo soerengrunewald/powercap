@@ -161,13 +161,13 @@ int main(int argc, char* argv[])
 	}
 
 	static constexpr std::array<std::string_view, 3> pwr_source = {
-		"/power1_cap_default",
-		"/power1_cap_min",
-		"/power1_cap_max"
+		"power1_cap_default"sv,
+		"power1_cap_min"sv,
+		"power1_cap_max"sv
 	};
 
 	auto pwrtarget = read_dec_uint64_value_from(hwmon / pwr_source[what_to_do]);
-	auto err = write_dec_uint64_value_to(hwmon / "/power1_cap", pwrtarget);
+	auto err = write_dec_uint64_value_to(hwmon / "power1_cap", pwrtarget);
 	if (err.value() != 0)
 		std::cerr << "Could not write: " << err.message() << std::endl;
 	else if (verbose)
