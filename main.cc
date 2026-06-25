@@ -17,7 +17,7 @@
 #include <cstdint>
 
 #include <array>
-#include <exception>
+#include <charconv>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -54,10 +54,14 @@ namespace {
 
 	std::optional<std::uint64_t> read_dec_uint64_value_from(fs::path const& p) {
 		auto v = read_string_from(p);
-		if (v.has_value()) try {
-			return std::stoul(v.value());
-		} catch (std::exception const& e) {
-			std::cerr << "Unable to convert " << v.value() << " to unsigned value: " << e.what() << std::endl;
+		if (v.has_value()) {
+			std::uint64_t value = 0ul;
+			auto const s = v.value();
+			auto const r = std::from_chars(s.data(), s.data() + s.size(), value);
+			if (r.ec == std::errc())
+				return value;
+			std::cerr << "Unable to convert " << v.value() << " to unsigned value: "
+			          << std::make_error_code(r.ec).message() << std::endl;
 		}
 		return std::nullopt;
 	}
