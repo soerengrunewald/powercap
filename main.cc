@@ -76,7 +76,7 @@ namespace {
 	}
 
 	// Try to find the first card entry
-	std::string find_card_base_path() {
+	fs::path find_card_base_path() {
 		fs::path const base_path{ "/sys/class/drm" };
 		for (auto const& dir_entry : fs::directory_iterator{ base_path }) {
 			if (not dir_entry.is_directory())
@@ -85,22 +85,22 @@ namespace {
 			auto const f = p.filename().string();
 			if (not starts_with(f, "card") or contains(f, "-"))
 				continue;
-			return p.string();
+			return p;
 		}
-		return "";
+		return {};
 	}
 
 	// Try to figure the hwmon entry
-	std::string find_hwmon_base_path(fs::path const& p) {
+	fs::path find_hwmon_base_path(fs::path const& p) {
 		fs::path const base_path{ p / "device/hwmon" };
 		if (not fs::exists(base_path))
-			return "";
+			return {};
 		for (auto const& dir_entry : fs::directory_iterator{ base_path }) {
 			if (not dir_entry.is_directory())
 				continue;
-			return dir_entry.path().string();
+			return dir_entry.path();
 		}
-		return "";
+		return {};
 	}
 
 	enum Action {
@@ -164,8 +164,8 @@ int main(int argc, char* argv[])
 		"/power1_cap_max"
 	};
 
-	auto pwrtarget = read_dec_uint64_value_from(hwmon + std::string{ pwr_source[what_to_do] });
-	auto err = write_dec_uint64_value_to(hwmon + "/power1_cap", pwrtarget);
+	auto pwrtarget = read_dec_uint64_value_from(hwmon / pwr_source[what_to_do]);
+	auto err = write_dec_uint64_value_to(hwmon / "/power1_cap", pwrtarget);
 	if (err < 0)
 		std::cerr << "Could not write: " << std::strerror(-err) << std::endl;
 
