@@ -15,7 +15,6 @@
 
 #include <cerrno>
 #include <cstdint>
-#include <cstring>
 
 #include <array>
 #include <exception>
@@ -27,6 +26,7 @@
 #include <string_view>
 
 #include <cxxopts.hpp>
+#include <system_error>
 
 namespace fs = std::filesystem;
 
@@ -60,18 +60,20 @@ namespace {
 		return std::nullopt;
 	}
 
-	inline int write_dec_uint64_value_to(fs::path const& p, std::uint64_t v) {
+	inline std::error_code write_dec_uint64_value_to(fs::path const& p, std::uint64_t v) {
 		std::ofstream f{p};
 		if (not f.is_open())
-			return -EPERM;
+			return std::error_code(EACCES, std::generic_category());
 		std::cout << "Trying to write " << (v / 1000) << " to " << p << "...\n";
 		f << v;
-		return 0;
+		if (not f)
+			return std::error_code(EPERM, std::generic_category());
+		return {};
 	}
 
-	inline int write_dec_uint64_value_to(fs::path const& p, std::optional<std::uint64_t> const& v) {
+	inline std::error_code write_dec_uint64_value_to(fs::path const& p, std::optional<std::uint64_t> const& v) {
 		if (not v.has_value())
-			return -ENODATA;
+			return std::error_code(ENODATA, std::generic_category());
 		return write_dec_uint64_value_to(p, v.value());
 	}
 
@@ -166,8 +168,8 @@ int main(int argc, char* argv[])
 
 	auto pwrtarget = read_dec_uint64_value_from(hwmon / pwr_source[what_to_do]);
 	auto err = write_dec_uint64_value_to(hwmon / "/power1_cap", pwrtarget);
-	if (err < 0)
-		std::cerr << "Could not write: " << std::strerror(-err) << std::endl;
+	if (err.value() != 0)
+		std::cerr << "Could not write: " << err.message() << std::endl;
 
 	return 0;
 }
