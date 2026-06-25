@@ -137,9 +137,10 @@ int main(int argc, char* argv[])
 		("default", "Restore driver default value")
 		("h,help", "Print usage")
 		;
+	options.allow_unrecognised_options();
 
 	auto result = options.parse(argc, argv);
-	if (result.count("help")) {
+	if (result.count("help") or not result.unmatched().empty()) {
 		std::cout << options.help() << std::endl;
 		return 0;
 	}
