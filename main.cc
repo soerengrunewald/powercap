@@ -30,6 +30,8 @@
 
 namespace fs = std::filesystem;
 
+using namespace std::literals::string_view_literals;
+
 namespace {
 
 	constexpr inline bool starts_with(std::string_view str, std::string_view prefix) {
@@ -79,7 +81,7 @@ namespace {
 
 	// Try to find the first card entry
 	fs::path find_card_base_path() {
-		fs::path const base_path{ "/sys/class/drm" };
+		fs::path const base_path{ "/sys/class/drm"sv };
 		for (auto const& dir_entry : fs::directory_iterator{ base_path }) {
 			if (not dir_entry.is_directory())
 				continue;
@@ -94,7 +96,7 @@ namespace {
 
 	// Try to figure the hwmon entry
 	fs::path find_hwmon_base_path(fs::path const& p) {
-		fs::path const base_path{ p / "device/hwmon" };
+		fs::path const base_path{ p / "device/hwmon"sv };
 		if (not fs::exists(base_path))
 			return {};
 		for (auto const& dir_entry : fs::directory_iterator{ base_path }) {
@@ -113,9 +115,9 @@ namespace {
 
 	inline std::string_view to_string(Action a) {
 		switch (a) {
-		case Action::SetToMin: return "minimal";
-		case Action::SetToMax: return "maximal";
-		case Action::RestoreDefault: return "default";
+		case Action::SetToMin: return "minimal"sv;
+		case Action::SetToMax: return "maximal"sv;
+		case Action::RestoreDefault: return "default"sv;
 		}
 		return "";
 	}
@@ -167,7 +169,7 @@ int main(int argc, char* argv[])
 	};
 
 	auto pwrtarget = read_dec_uint64_value_from(hwmon / pwr_source[what_to_do]);
-	auto err = write_dec_uint64_value_to(hwmon / "power1_cap", pwrtarget);
+	auto err = write_dec_uint64_value_to(hwmon / "power1_cap"sv, pwrtarget);
 	if (err.value() != 0)
 		std::cerr << "Could not write: " << err.message() << std::endl;
 	else if (verbose)
