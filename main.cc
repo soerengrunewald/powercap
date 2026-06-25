@@ -44,10 +44,10 @@ namespace {
 	std::optional<std::string> read_string_from(fs::path const& p) {
 		std::ifstream f(p);
 		if (not f.is_open())
-			return {};
-		std::string s;
-		std::getline(f, s);
-		return s;
+			return std::nullopt;
+		if (std::string s; std::getline(f, s))
+			return s;
+		return std::nullopt;
 	}
 
 	std::optional<std::uint64_t> read_dec_uint64_value_from(fs::path const& p) {
@@ -57,7 +57,7 @@ namespace {
 		} catch (std::exception const& e) {
 			std::cerr << "Unable to convert " << v.value() << " to unsigned value: " << e.what() << std::endl;
 		}
-		return {};
+		return std::nullopt;
 	}
 
 	inline int write_dec_uint64_value_to(fs::path const& p, std::uint64_t v) {
